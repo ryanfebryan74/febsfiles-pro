@@ -575,6 +575,16 @@
     @keyframes dxGrowX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
     @media (max-width: 639px) { .dx-donut { width: 130px; height: 130px; } .dx-kpi-val { font-size: 1.6rem; } .dx-spark { width: 54px; } }
   </style>
+  <style>
+    /* Menu Hidden / Show: baris grid agar kolom status dan aksi selalu terlihat */
+    .vz-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 200px) 104px 140px; gap: .75rem; align-items: center; padding: .85rem 1rem; }
+    .vz-head { padding-top: .9rem; padding-bottom: .9rem; }
+    .vz-owner { display: none; }
+    @media (min-width: 1536px) {
+      .vz-row { grid-template-columns: minmax(0, 1fr) minmax(0, 200px) minmax(0, 140px) 104px 140px; }
+      .vz-owner { display: block; }
+    }
+  </style>
 </head>
 
 
@@ -1117,6 +1127,7 @@
       activeMenu: 'documents',
       viewMode: 'table', // 'table' | 'grid'
       visibilityFilter: 'ALL', // 'ALL' | 'VISIBLE' | 'HIDDEN'
+      visibilitySearch: '',
       activityFilter: 'ALL', // 'ALL' | 'CLIENT' | 'ADMIN'
       mobileFilterOpen: false, // Toggle filter ringkas di layar HP
       filters: {
@@ -3743,10 +3754,14 @@
       const hiddenCount = allDocs.filter(d => d.hiddenFromClient).length;
       const visibleCount = allDocs.length - hiddenCount;
 
+      const visQuery = String(state.visibilitySearch || '').trim().toLocaleLowerCase();
       const filtered = allDocs.filter(d => {
-        if (state.visibilityFilter === 'HIDDEN') return Boolean(d.hiddenFromClient);
-        if (state.visibilityFilter === 'VISIBLE') return !d.hiddenFromClient;
-        return true;
+        if (state.visibilityFilter === 'HIDDEN' && !d.hiddenFromClient) return false;
+        if (state.visibilityFilter === 'VISIBLE' && d.hiddenFromClient) return false;
+        if (!visQuery) return true;
+        const haystack = [d.title, d.code, d.fileName, d.category, d.folder, d.owner, d.industry, d.format, d.tags]
+          .map(v => String(v || '')).join(' ').toLocaleLowerCase();
+        return visQuery.split(/\s+/).every(word => haystack.includes(word));
       });
 
       return `
@@ -3771,11 +3786,30 @@
             </div>
           </div>
 
+          <!-- Pencarian File (Hidden / Show) -->
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              <input
+                type="text"
+                id="visibility-search-input"
+                value="${escapeHtml(state.visibilitySearch)}"
+                placeholder="Cari nama dokumen, kode, kategori, folder, atau pemilik..."
+                autocomplete="off"
+                class="w-full rounded-xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#161B26] pl-9 ${state.visibilitySearch ? 'pr-9' : 'pr-3'} py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-orange-500 focus:outline-none"
+              />
+              ${state.visibilitySearch ? `
+                <button type="button" id="visibility-search-clear" title="Hapus pencarian" class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg flex items-center justify-center text-slate-400 hover:text-orange-500 text-base leading-none">×</button>
+              ` : ''}
+            </div>
+            <span class="shrink-0 text-[11px] font-bold text-slate-400 whitespace-nowrap">${filtered.length} dokumen</span>
+          </div>
+
           <div class="rounded-2xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#121620] overflow-hidden shadow-sm">
             <!-- TAMPILAN KARTU KHUSUS HANDPHONE (Mobile View) -->
-            <div class="md:hidden divide-y divide-slate-200 dark:divide-[#222938]">
+            <div class="lg:hidden divide-y divide-slate-200 dark:divide-[#222938]">
               ${filtered.length === 0 ? `
-                <div class="p-8 text-center text-xs text-slate-400">Tidak ada dokumen pada filter visibilitas ini.</div>
+                <div class="p-8 text-center text-xs text-slate-400">${visQuery ? 'Tidak ada dokumen yang cocok dengan pencarian Anda.' : 'Tidak ada dokumen pada filter visibilitas ini.'}</div>
               ` : filtered.map(d => `
                 <div class="p-3.5 space-y-3">
                   <div class="flex items-start justify-between gap-2.5">
@@ -3815,64 +3849,57 @@
               `).join("")}
             </div>
 
-            <!-- TAMPILAN TABEL DESKTOP -->
-            <div class="hidden md:block overflow-x-auto">
-              <table class="w-full min-w-[720px] text-left border-collapse">
-                <thead>
-                  <tr class="border-b border-slate-200 dark:border-[#222938] bg-slate-50/60 dark:bg-[#161B26]/60 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    <th class="py-3.5 px-4">DOKUMEN</th>
-                    <th class="py-3.5 px-4">KATEGORI & FOLDER</th>
-                    <th class="py-3.5 px-4">PEMILIK</th>
-                    <th class="py-3.5 px-4">STATUS VISIBILITAS DI KLIEN</th>
-                    <th class="py-3.5 px-4">AKSI KONTROL</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200 dark:divide-[#222938] text-xs">
-                  ${filtered.length === 0 ? `
-                    <tr>
-                      <td colspan="5" class="py-8 text-center text-slate-400">Tidak ada dokumen pada filter visibilitas ini.</td>
-                    </tr>
-                  ` : filtered.map(d => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-[#161B26]/60 transition">
-                      <td class="py-4 px-4">
-                        <div class="flex items-center gap-3">
-                          ${getFormatBadgeHtml(d.format)}
-                          <div>
-                            <div class="font-bold text-slate-900 dark:text-white text-sm">${escapeHtml(d.title)}</div>
-                            <div class="text-[11px] text-slate-400">${escapeHtml(d.code)} • ${escapeHtml(d.fileName || d.industry)}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td class="py-4 px-4 text-slate-300">${escapeHtml(d.category)} • ${escapeHtml(d.folder)}</td>
-                      <td class="py-4 px-4 text-slate-300">${escapeHtml(d.owner)}</td>
-                      <td class="py-4 px-4">
-                        ${d.hiddenFromClient ? `
-                          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                            <i data-lucide="eye-off" class="w-3.5 h-3.5"></i>
-                            <span>HIDDEN (Tersembunyi dari Klien)</span>
-                          </span>
-                        ` : `
-                          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                            <span>SHOW (Tampil di Klien)</span>
-                          </span>
-                        `}
-                      </td>
-                      <td class="py-4 px-4">
-                        <button
-                          type="button"
-                          data-action="toggle-hide"
-                          data-id="${d.id}"
-                          class="px-3.5 py-2 rounded-xl font-bold text-xs transition flex items-center gap-1.5 ${d.hiddenFromClient ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-purple-600 hover:bg-purple-700 text-white'}"
-                        >
-                          <i data-lucide="${d.hiddenFromClient ? 'eye' : 'eye-off'}" class="w-3.5 h-3.5"></i>
-                          <span>${d.hiddenFromClient ? 'Tampilkan ke Klien (Show)' : 'Sembunyikan dari Klien (Hidden)'}</span>
-                        </button>
-                      </td>
-                    </tr>
-                  `).join("")}
-                </tbody>
-              </table>
+            <!-- TAMPILAN DESKTOP (grid, tidak terpotong) -->
+            <div class="hidden lg:block">
+              <div class="vz-row vz-head border-b border-slate-200 dark:border-[#222938] bg-slate-50/60 dark:bg-[#161B26]/60 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <div>DOKUMEN</div>
+                <div>KATEGORI & FOLDER</div>
+                <div class="vz-owner">PEMILIK</div>
+                <div>STATUS</div>
+                <div class="text-right">AKSI</div>
+              </div>
+              <div class="divide-y divide-slate-200 dark:divide-[#222938] text-xs">
+                ${filtered.length === 0 ? `
+                  <div class="py-8 text-center text-slate-400">${visQuery ? 'Tidak ada dokumen yang cocok dengan pencarian Anda.' : 'Tidak ada dokumen pada filter visibilitas ini.'}</div>
+                ` : filtered.map(d => `
+                  <div class="vz-row hover:bg-slate-50 dark:hover:bg-[#161B26]/60 transition">
+                    <div class="flex items-center gap-3 min-w-0">
+                      ${getFormatBadgeHtml(d.format)}
+                      <div class="min-w-0">
+                        <div class="font-bold text-slate-900 dark:text-white text-sm truncate" title="${escapeHtml(d.title)}">${escapeHtml(d.title)}</div>
+                        <div class="text-[11px] text-slate-400 truncate">${escapeHtml(d.code)} • ${escapeHtml(d.fileName || d.industry)}</div>
+                      </div>
+                    </div>
+                    <div class="text-slate-300 truncate min-w-0" title="${escapeHtml(d.category)} • ${escapeHtml(d.folder)}">${escapeHtml(d.category)} • ${escapeHtml(d.folder)}</div>
+                    <div class="vz-owner text-slate-300 truncate min-w-0">${escapeHtml(d.owner)}</div>
+                    <div>
+                      ${d.hiddenFromClient ? `
+                        <span title="Tersembunyi dari Klien" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold whitespace-nowrap bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                          <i data-lucide="eye-off" class="w-3.5 h-3.5 shrink-0"></i>
+                          <span>HIDDEN</span>
+                        </span>
+                      ` : `
+                        <span title="Tampil di Klien" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold whitespace-nowrap bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                          <i data-lucide="eye" class="w-3.5 h-3.5 shrink-0"></i>
+                          <span>SHOW</span>
+                        </span>
+                      `}
+                    </div>
+                    <div class="flex justify-end">
+                      <button
+                        type="button"
+                        data-action="toggle-hide"
+                        data-id="${escapeHtml(d.id)}"
+                        title="${d.hiddenFromClient ? 'Tampilkan dokumen ke Klien' : 'Sembunyikan dokumen dari Klien'}"
+                        class="px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap transition inline-flex items-center justify-center gap-1.5 w-[132px] ${d.hiddenFromClient ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-purple-600 hover:bg-purple-700 text-white'}"
+                      >
+                        <i data-lucide="${d.hiddenFromClient ? 'eye' : 'eye-off'}" class="w-3.5 h-3.5 shrink-0"></i>
+                        <span>${d.hiddenFromClient ? 'Tampilkan' : 'Sembunyikan'}</span>
+                      </button>
+                    </div>
+                  </div>
+                `).join("")}
+              </div>
             </div>
           </div>
         </div>
@@ -5151,6 +5178,29 @@
         btnToggleMobileFilter.addEventListener("click", () => {
           state.mobileFilterOpen = !state.mobileFilterOpen;
           renderApp();
+        });
+      }
+
+      // Pencarian di menu Hidden / Show Dokumen
+      const visSearchInput = document.getElementById("visibility-search-input");
+      if (visSearchInput) {
+        visSearchInput.addEventListener("input", (e) => {
+          state.visibilitySearch = e.target.value;
+          renderApp();
+          const el = document.getElementById("visibility-search-input");
+          if (el) {
+            el.focus();
+            el.setSelectionRange(el.value.length, el.value.length);
+          }
+        });
+      }
+      const visSearchClear = document.getElementById("visibility-search-clear");
+      if (visSearchClear) {
+        visSearchClear.addEventListener("click", () => {
+          state.visibilitySearch = '';
+          renderApp();
+          const el = document.getElementById("visibility-search-input");
+          if (el) el.focus();
         });
       }
 
