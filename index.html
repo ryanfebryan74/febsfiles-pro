@@ -526,6 +526,55 @@
       .fb-grid, .fb-orb, .fb-cube, .fb-ring, .fb-ring2, .fb-spark { animation: none !important; }
     }
   </style>
+  <style>
+    /* Dashboard visual: kartu KPI berwarna, donut, bar chart (kelas dx-* saja) */
+    .dx-card { border-radius: 1rem; border: 1px solid #e2e8f0; background: #fff; padding: 1.15rem; }
+    .dark .dx-card { border-color: #222938; background: #121620; }
+    .dx-title { display: flex; align-items: center; gap: .5rem; font-size: .875rem; font-weight: 800; margin-bottom: 1rem; color: #0f172a; }
+    .dark .dx-title { color: #fff; }
+    .dx-kpi { position: relative; overflow: hidden; border-radius: 1rem; padding: 1rem; color: #0f172a; border: 1px solid #e2e8f0; background: #fff; transition: transform .25s ease, box-shadow .25s ease; }
+    .dark .dx-kpi { color: #fff; border-color: #222938; background: #121620; }
+    .dx-kpi:hover { transform: translateY(-3px); }
+    .dx-kpi::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, var(--dx-c) 0%, transparent 70%); opacity: .16; pointer-events: none; }
+    .dx-kpi::after { content: ""; position: absolute; right: -30px; top: -30px; width: 100px; height: 100px; border-radius: 50%; background: var(--dx-c); opacity: .12; pointer-events: none; }
+    .dx-kpi:hover { box-shadow: 0 14px 28px -16px var(--dx-c); }
+    .dx-k-orange { --dx-c: #F97316; } .dx-k-green { --dx-c: #10B981; } .dx-k-sky { --dx-c: #0EA5E9; } .dx-k-purple { --dx-c: #8B5CF6; } .dx-k-amber { --dx-c: #F59E0B; }
+    .dx-kpi-ic { width: 2.5rem; height: 2.5rem; border-radius: .8rem; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, var(--dx-c), color-mix(in srgb, var(--dx-c) 55%, #000)); box-shadow: 0 8px 16px -8px var(--dx-c); position: relative; z-index: 1; }
+    .dx-kpi-val { font-size: 1.9rem; font-weight: 800; line-height: 1; margin-top: .75rem; color: var(--dx-c); position: relative; z-index: 1; }
+    .dx-kpi-lbl { font-size: .75rem; font-weight: 700; margin-top: .35rem; position: relative; z-index: 1; }
+    .dx-kpi-sub { font-size: .6875rem; color: #94a3b8; margin-top: .15rem; position: relative; z-index: 1; }
+    .dx-spark { position: absolute; right: .75rem; bottom: .75rem; width: 70px; height: 26px; z-index: 1; overflow: visible; }
+    .dx-spark polyline { fill: none; stroke: var(--dx-c); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .dx-kpi-bar { height: 6px; border-radius: 999px; background: rgba(148,163,184,.2); margin-top: .6rem; overflow: hidden; position: relative; z-index: 1; }
+    .dx-kpi-bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #10B981, #34D399); }
+    .dx-donut-wrap { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; justify-content: center; }
+    .dx-donut { position: relative; width: 150px; height: 150px; flex-shrink: 0; }
+    .dx-donut svg { width: 100%; height: 100%; filter: drop-shadow(0 6px 10px rgba(0,0,0,.18)); }
+    .dx-donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .dx-donut-center b { font-size: 1.6rem; font-weight: 800; line-height: 1; color: #0f172a; }
+    .dark .dx-donut-center b { color: #fff; }
+    .dx-donut-center span { font-size: .6875rem; color: #94a3b8; font-weight: 600; margin-top: .2rem; }
+    .dx-legend { flex: 1 1 150px; min-width: 0; display: flex; flex-direction: column; gap: .5rem; }
+    .dx-leg-row { display: flex; align-items: center; gap: .5rem; font-size: .75rem; font-weight: 600; }
+    .dx-dot { width: .65rem; height: .65rem; border-radius: 50%; flex-shrink: 0; }
+    .dx-leg-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #334155; }
+    .dark .dx-leg-name { color: #e2e8f0; }
+    .dx-leg-val { font-weight: 800; color: #0f172a; }
+    .dark .dx-leg-val { color: #fff; }
+    .dx-leg-val em { font-style: normal; font-weight: 600; color: #94a3b8; }
+    .dx-bars { display: flex; align-items: flex-end; justify-content: space-between; gap: .6rem; height: 190px; padding-top: .5rem; }
+    .dx-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; min-width: 0; }
+    .dx-bar-num { font-size: .75rem; font-weight: 800; color: #475569; margin-bottom: .25rem; }
+    .dark .dx-bar-num { color: #cbd5e1; }
+    .dx-bar-track { flex: 1; width: 100%; max-width: 46px; display: flex; align-items: flex-end; border-radius: .6rem; background: rgba(148,163,184,.12); overflow: hidden; }
+    .dx-bar { width: 100%; border-radius: .6rem .6rem 0 0; transform-origin: bottom; animation: dxGrow .8s cubic-bezier(.2,.8,.2,1) both; }
+    .dx-bar-lbl { font-size: .6875rem; font-weight: 700; color: #94a3b8; margin-top: .4rem; }
+    .dx-hbar { height: 9px; border-radius: 999px; background: rgba(148,163,184,.15); overflow: hidden; }
+    .dx-hbar span { display: block; height: 100%; border-radius: 999px; animation: dxGrowX .9s cubic-bezier(.2,.8,.2,1) both; transform-origin: left; }
+    @keyframes dxGrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+    @keyframes dxGrowX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @media (max-width: 639px) { .dx-donut { width: 130px; height: 130px; } .dx-kpi-val { font-size: 1.6rem; } .dx-spark { width: 54px; } }
+  </style>
 </head>
 
 
@@ -2221,7 +2270,6 @@
               <i data-lucide="${item.icon}" class="w-4 h-4 shrink-0 ${isActive ? 'text-orange-500' : 'text-slate-400'}"></i>
               <span class="truncate">${item.label}</span>
             </span>
-            ${item.badge !== null ? `<span class="${badgeClass}">${item.badge}</span>` : ''}
           </button>
         `;
       };
@@ -2971,6 +3019,53 @@
       const initialDateStr = `${daysId[now.getDay()]}, ${String(now.getDate()).padStart(2, "0")} ${monthsId[now.getMonth()]} ${now.getFullYear()}`;
       const initialTimeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
 
+
+      /* ===== Data diagram dashboard ===== */
+      const DX_COLORS = ["#F97316", "#38BDF8", "#A78BFA", "#34D399", "#FBBF24", "#F472B6", "#22D3EE", "#FB7185"];
+      const catEntries = Object.entries(catCounts).sort((x, y) => y[1] - x[1]);
+      const statusDefs = [
+        { label: "Aktif", color: "#34D399" },
+        { label: "Review", color: "#FBBF24" },
+        { label: "Draft", color: "#38BDF8" },
+        { label: "Arsip", color: "#94A3B8" }
+      ];
+      const statusEntries = statusDefs
+        .map(sd => ({ ...sd, count: accessible.filter(d => d.status === sd.label).length }))
+        .filter(sd => sd.count > 0);
+      const fmtCounts = {};
+      accessible.forEach(d => { const f = d.format || "Lainnya"; fmtCounts[f] = (fmtCounts[f] || 0) + 1; });
+      const formatEntries = Object.entries(fmtCounts).sort((x, y) => y[1] - x[1]);
+
+      const trendLabels = [];
+      const trendVals = [];
+      for (let i = 5; i >= 0; i--) {
+        const md = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        trendLabels.push(monthsId[md.getMonth()]);
+        trendVals.push(accessible.filter(d => {
+          const cd = new Date(d.createdAt || d.updatedAt || 0);
+          return !isNaN(cd.getTime()) && cd.getFullYear() === md.getFullYear() && cd.getMonth() === md.getMonth();
+        }).length);
+      }
+      const trendMax = Math.max(1, ...trendVals);
+
+      function dxDonut(parts) {
+        const sum = parts.reduce((acc, p2) => acc + p2.value, 0) || 1;
+        const r = 46, c = 2 * Math.PI * r;
+        let offset = 0;
+        let out = `<circle cx="60" cy="60" r="${r}" fill="none" stroke="rgba(148,163,184,.15)" stroke-width="14"/>`;
+        parts.forEach(p2 => {
+          const len = (p2.value / sum) * c;
+          const gap = parts.length > 1 ? 2 : 0;
+          out += `<circle cx="60" cy="60" r="${r}" fill="none" stroke="${p2.color}" stroke-width="14" stroke-linecap="butt" stroke-dasharray="${Math.max(0, len - gap)} ${c - Math.max(0, len - gap)}" stroke-dashoffset="${-offset}" transform="rotate(-90 60 60)"/>`;
+          offset += len;
+        });
+        return out;
+      }
+      function dxSpark(vals) {
+        const mx = Math.max(1, ...vals);
+        return vals.map((v, i) => `${Math.round((i / (vals.length - 1)) * 100)},${Math.round(24 - (v / mx) * 20)}`).join(" ");
+      }
+
       return `
         <div class="space-y-6">
           <!-- Page Header (Banner 3D) -->
@@ -3018,138 +3113,158 @@
                 <span class="fb-quote-text" data-fb-quote>Keselamatan bukan sekadar prioritas, melainkan nilai yang kita jalani setiap hari.</span>
               </div>
             </div>
-            <div class="flex flex-wrap items-center gap-2.5">
-              ${isAdmin ? `
-                <button type="button" id="dash-btn-logs" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#161B26] text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-orange-500/50 transition flex items-center gap-2">
-                  <i data-lucide="activity" class="w-4 h-4 text-orange-500"></i>
-                  <span>Pantau Aktivitas Klien</span>
-                </button>
-              ` : ''}
-              <button type="button" id="dash-btn-add-doc" class="px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold shadow-lg shadow-orange-500/20 transition flex items-center gap-2">
-                <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-                <span>Upload / Tambah File</span>
-              </button>
-            </div>
+            <div class="hidden" style="display:none !important" aria-hidden="true"></div>
           </div>
 
           <!-- KPI Cards Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="rounded-2xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#121620] p-5 flex items-center justify-between">
-              <div>
-                <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">Dokumen Tersedia</div>
-                <div class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">${total}</div>
-                <div class="text-[11px] text-orange-500 font-semibold mt-1">Siap diakses PC / HP</div>
-              </div>
-              <div class="w-12 h-12 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-500">
-                <i data-lucide="files" class="w-6 h-6"></i>
-              </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="dx-kpi dx-k-orange">
+              <div class="dx-kpi-ic"><i data-lucide="files" class="w-5 h-5"></i></div>
+              <div class="dx-kpi-val" data-dx-count="${total}">${total}</div>
+              <div class="dx-kpi-lbl">Dokumen Tersedia</div>
+              <div class="dx-kpi-sub">Siap diakses PC / HP</div>
+              <svg class="dx-spark" viewBox="0 0 100 28" preserveAspectRatio="none"><polyline points="${dxSpark(trendVals)}" /></svg>
             </div>
-
-            <div class="rounded-2xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#121620] p-5 flex items-center justify-between">
-              <div>
-                <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">Berstatus Aktif</div>
-                <div class="text-3xl font-extrabold text-emerald-500 mt-1">${aktif}</div>
-                <div class="text-[11px] text-slate-400 mt-1">Tersertifikasi & valid</div>
-              </div>
-              <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <i data-lucide="check-circle-2" class="w-6 h-6"></i>
-              </div>
+            <div class="dx-kpi dx-k-green">
+              <div class="dx-kpi-ic"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
+              <div class="dx-kpi-val" data-dx-count="${aktif}">${aktif}</div>
+              <div class="dx-kpi-lbl">Berstatus Aktif</div>
+              <div class="dx-kpi-sub">${total > 0 ? Math.round((aktif / total) * 100) : 0}% dari seluruh dokumen</div>
+              <div class="dx-kpi-bar"><span style="width:${total > 0 ? Math.round((aktif / total) * 100) : 0}%"></span></div>
             </div>
-
-            <div class="rounded-2xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#121620] p-5 flex items-center justify-between">
-              <div>
-                <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">${isAdmin ? 'Aktivitas Klien Tercatat' : 'Folder HSE Tersedia'}</div>
-                <div class="text-3xl font-extrabold text-sky-400 mt-1">${isAdmin ? clientActions : getUniqueFoldersList().length}</div>
-                <div class="text-[11px] text-slate-400 mt-1">${isAdmin ? 'Login, Upload & Hapus' : 'Klasifikasi dokumen K3'}</div>
-              </div>
-              <div class="w-12 h-12 rounded-2xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
-                <i data-lucide="${isAdmin ? 'activity' : 'folder'}" class="w-6 h-6"></i>
-              </div>
+            <div class="dx-kpi dx-k-sky">
+              <div class="dx-kpi-ic"><i data-lucide="${isAdmin ? 'activity' : 'folder'}" class="w-5 h-5"></i></div>
+              <div class="dx-kpi-val" data-dx-count="${isAdmin ? clientActions : getUniqueFoldersList().length}">${isAdmin ? clientActions : getUniqueFoldersList().length}</div>
+              <div class="dx-kpi-lbl">${isAdmin ? 'Aktivitas Klien Tercatat' : 'Folder HSE Tersedia'}</div>
+              <div class="dx-kpi-sub">${isAdmin ? 'Login, Upload & Hapus' : 'Klasifikasi dokumen K3'}</div>
             </div>
-
             ${isAdmin ? `
-              <div class="rounded-2xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#121620] p-5 flex items-center justify-between">
-                <div>
-                  <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">Hidden dari Klien</div>
-                  <div class="text-3xl font-extrabold text-purple-400 mt-1">${hiddenCount}</div>
-                  <div class="text-[11px] text-slate-400 mt-1">Dikontrol oleh Admin</div>
-                </div>
-                <div class="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400">
-                  <i data-lucide="eye-off" class="w-6 h-6"></i>
-                </div>
+              <div class="dx-kpi dx-k-purple">
+                <div class="dx-kpi-ic"><i data-lucide="eye-off" class="w-5 h-5"></i></div>
+                <div class="dx-kpi-val" data-dx-count="${hiddenCount}">${hiddenCount}</div>
+                <div class="dx-kpi-lbl">Hidden dari Klien</div>
+                <div class="dx-kpi-sub">Dikontrol oleh Admin</div>
               </div>
             ` : `
-              <div class="rounded-2xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#121620] p-5 flex items-center justify-between">
-                <div>
-                  <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">Dokumen Favorit</div>
-                  <div class="text-3xl font-extrabold text-amber-400 mt-1">${favCount}</div>
-                  <div class="text-[11px] text-slate-400 mt-1">Ditandai bintang prioritas</div>
-                </div>
-                <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                  <i data-lucide="star" class="w-6 h-6"></i>
-                </div>
+              <div class="dx-kpi dx-k-amber">
+                <div class="dx-kpi-ic"><i data-lucide="star" class="w-5 h-5"></i></div>
+                <div class="dx-kpi-val" data-dx-count="${favCount}">${favCount}</div>
+                <div class="dx-kpi-lbl">Dokumen Favorit</div>
+                <div class="dx-kpi-sub">Ditandai bintang prioritas</div>
               </div>
             `}
           </div>
 
-          <!-- Two-Column Insights: Distribusi Kategori & Aktivitas / Dokumen Terbaru -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="rounded-2xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#121620] p-5">
-              <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                <i data-lucide="bar-chart-3" class="w-4 h-4 text-orange-500"></i>
-                <span>Distribusi Dokumen per Kategori</span>
-              </h3>
-              ${Object.keys(catCounts).length === 0 ? `
-                <div class="py-8 text-center text-xs text-slate-400">Belum ada data kategori dokumen.</div>
-              ` : `
-                <div class="space-y-3">
-                  ${Object.entries(catCounts).map(([cat, count]) => {
-                    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-                    return `
-                      <div>
-                        <div class="flex justify-between text-xs font-semibold mb-1">
-                          <span class="text-slate-700 dark:text-slate-200">${escapeHtml(cat)}</span>
-                          <span class="text-orange-500">${count} dok (${pct}%)</span>
-                        </div>
-                        <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-[#1C2230] overflow-hidden">
-                          <div class="h-full bg-orange-500 rounded-full" style="width: ${pct}%"></div>
-                        </div>
-                      </div>
-                    `;
-                  }).join("")}
+          <!-- Diagram baris 1: Donut Kategori + Donut Status -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div class="dx-card">
+              <h3 class="dx-title"><i data-lucide="pie-chart" class="w-4 h-4 text-orange-500"></i><span>Distribusi Dokumen per Kategori</span></h3>
+              ${catEntries.length === 0 ? `<div class="py-8 text-center text-xs text-slate-400">Belum ada data kategori dokumen.</div>` : `
+                <div class="dx-donut-wrap">
+                  <div class="dx-donut">
+                    <svg viewBox="0 0 120 120">${dxDonut(catEntries.map(([k, v], i) => ({ value: v, color: DX_COLORS[i % DX_COLORS.length] })))}</svg>
+                    <div class="dx-donut-center"><b>${total}</b><span>Dokumen</span></div>
+                  </div>
+                  <div class="dx-legend">
+                    ${catEntries.map(([cat, count], i) => `
+                      <div class="dx-leg-row">
+                        <span class="dx-dot" style="background:${DX_COLORS[i % DX_COLORS.length]}"></span>
+                        <span class="dx-leg-name">${escapeHtml(cat)}</span>
+                        <span class="dx-leg-val">${count} <em>(${Math.round((count / total) * 100)}%)</em></span>
+                      </div>`).join("")}
+                  </div>
                 </div>
               `}
             </div>
 
-            <div class="rounded-2xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#121620] p-5">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <i data-lucide="History" class="w-4 h-4 text-orange-500"></i>
-                  <span>${isAdmin ? "Log Aktivitas Klien & Sistem Terbaru" : "Log Aktivitas Saya Terbaru"}</span>
-                </h3>
-                <span class="text-[11px] font-semibold text-orange-500">Real-Time</span>
-              </div>
-              ${visibleActivityLogs.length === 0 ? `
-                <div class="py-8 text-center text-xs text-slate-400">Belum ada aktivitas tercatat.</div>
-              ` : `
-                <div class="space-y-2.5">
-                  ${visibleActivityLogs.slice(0, 4).map(log => `
-                    <div class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-[#222938] bg-slate-50 dark:bg-[#161B26]">
-                      <div class="min-w-0 pr-3">
-                        <div class="flex items-center gap-2">
-                          <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold ${log.actorType === 'CLIENT' ? 'bg-sky-500/20 text-sky-400' : 'bg-orange-500/20 text-orange-400'}">${escapeHtml(log.actionType)}</span>
-                          <span class="text-xs font-bold text-slate-900 dark:text-white truncate">${escapeHtml(log.actorName)}</span>
-                        </div>
-                        <div class="text-[11px] text-slate-400 truncate mt-1">${escapeHtml(log.targetTitle)} • ${escapeHtml(log.deviceInfo || 'Perangkat')}</div>
-                      </div>
-                      <div class="text-right shrink-0">
-                        <div class="text-[10px] font-semibold text-slate-400">${formatDateTimeFull(log.timestamp)}</div>
-                      </div>
-                    </div>
-                  `).join("")}
+            <div class="dx-card">
+              <h3 class="dx-title"><i data-lucide="gauge" class="w-4 h-4 text-orange-500"></i><span>Komposisi Status Dokumen</span></h3>
+              ${total === 0 ? `<div class="py-8 text-center text-xs text-slate-400">Belum ada dokumen.</div>` : `
+                <div class="dx-donut-wrap">
+                  <div class="dx-donut">
+                    <svg viewBox="0 0 120 120">${dxDonut(statusEntries.map(s2 => ({ value: s2.count, color: s2.color })))}</svg>
+                    <div class="dx-donut-center"><b>${total > 0 ? Math.round((aktif / total) * 100) : 0}%</b><span>Aktif</span></div>
+                  </div>
+                  <div class="dx-legend">
+                    ${statusEntries.map(s2 => `
+                      <div class="dx-leg-row">
+                        <span class="dx-dot" style="background:${s2.color}"></span>
+                        <span class="dx-leg-name">${s2.label}</span>
+                        <span class="dx-leg-val">${s2.count} <em>(${Math.round((s2.count / total) * 100)}%)</em></span>
+                      </div>`).join("")}
+                  </div>
                 </div>
               `}
             </div>
+          </div>
+
+          <!-- Diagram baris 2: Tren 6 bulan + Format -->
+          <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div class="dx-card lg:col-span-3">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="dx-title" style="margin:0"><i data-lucide="bar-chart-3" class="w-4 h-4 text-orange-500"></i><span>Dokumen Masuk 6 Bulan Terakhir</span></h3>
+                <span class="text-[11px] font-semibold text-orange-500">Total ${trendVals.reduce((x, y) => x + y, 0)}</span>
+              </div>
+              <div class="dx-bars">
+                ${trendVals.map((v, i) => `
+                  <div class="dx-bar-col">
+                    <div class="dx-bar-num">${v}</div>
+                    <div class="dx-bar-track"><div class="dx-bar" style="height:${Math.max(v > 0 ? 8 : 2, Math.round((v / trendMax) * 100))}%; background:linear-gradient(180deg, ${DX_COLORS[i % DX_COLORS.length]}, ${DX_COLORS[i % DX_COLORS.length]}55); animation-delay:${i * 70}ms"></div></div>
+                    <div class="dx-bar-lbl">${trendLabels[i]}</div>
+                  </div>`).join("")}
+              </div>
+            </div>
+
+            <div class="dx-card lg:col-span-2">
+              <h3 class="dx-title"><i data-lucide="file-type" class="w-4 h-4 text-orange-500"></i><span>Format Berkas</span></h3>
+              ${formatEntries.length === 0 ? `<div class="py-8 text-center text-xs text-slate-400">Belum ada data format.</div>` : `
+                <div class="space-y-3">
+                  ${formatEntries.map(([fmt, count], i) => {
+                    const pct = Math.round((count / total) * 100);
+                    const col = DX_COLORS[(i + 2) % DX_COLORS.length];
+                    return `
+                      <div>
+                        <div class="flex justify-between text-xs font-semibold mb-1">
+                          <span class="text-slate-700 dark:text-slate-200">${escapeHtml(fmt)}</span>
+                          <span style="color:${col}">${count} (${pct}%)</span>
+                        </div>
+                        <div class="dx-hbar"><span style="width:${pct}%; background:linear-gradient(90deg, ${col}, ${col}99)"></span></div>
+                      </div>`;
+                  }).join("")}
+                </div>
+              `}
+            </div>
+          </div>
+
+          <!-- Log Aktivitas Terbaru -->
+          <div class="dx-card">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="dx-title" style="margin:0">
+                <i data-lucide="History" class="w-4 h-4 text-orange-500"></i>
+                <span>${isAdmin ? "Log Aktivitas Klien & Sistem Terbaru" : "Log Aktivitas Saya Terbaru"}</span>
+              </h3>
+              <span class="text-[11px] font-semibold text-orange-500">Real-Time</span>
+            </div>
+            ${visibleActivityLogs.length === 0 ? `
+              <div class="py-8 text-center text-xs text-slate-400">Belum ada aktivitas tercatat.</div>
+            ` : `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                ${visibleActivityLogs.slice(0, 4).map(log => `
+                  <div class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-[#222938] bg-slate-50 dark:bg-[#161B26]" style="border-left:3px solid ${log.actorType === 'CLIENT' ? '#38BDF8' : '#F97316'}">
+                    <div class="min-w-0 pr-3">
+                      <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold ${log.actorType === 'CLIENT' ? 'bg-sky-500/20 text-sky-400' : 'bg-orange-500/20 text-orange-400'}">${escapeHtml(log.actionType)}</span>
+                        <span class="text-xs font-bold text-slate-900 dark:text-white truncate">${escapeHtml(log.actorName)}</span>
+                      </div>
+                      <div class="text-[11px] text-slate-400 truncate mt-1">${escapeHtml(log.targetTitle)} • ${escapeHtml(log.deviceInfo || 'Perangkat')}</div>
+                    </div>
+                    <div class="text-right shrink-0">
+                      <div class="text-[10px] font-semibold text-slate-400">${formatDateTimeFull(log.timestamp)}</div>
+                    </div>
+                  </div>
+                `).join("")}
+              </div>
+            `}
           </div>
         </div>
       `;
