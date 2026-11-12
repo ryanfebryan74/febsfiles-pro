@@ -203,11 +203,335 @@
       touch-action: pan-y;
       scrollbar-width: thin;
     }
+  
+
+    /* Khusus layar login di HP: gunakan seluruh layar tanpa mengubah tampilan desktop/aplikasi. */
+    @media (max-width: 767px) {
+      #auth-screen {
+        padding: 0 !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+      }
+      #auth-screen > div.relative.m-auto.w-full.max-w-md {
+        width: 100% !important;
+        max-width: none !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        border-radius: 0 !important;
+        border-left: 0 !important;
+        border-right: 0 !important;
+        padding-top: max(22px, env(safe-area-inset-top)) !important;
+        padding-right: 22px !important;
+        padding-bottom: max(22px, env(safe-area-inset-bottom)) !important;
+        padding-left: 22px !important;
+        box-shadow: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: safe center !important;
+      }
+    }
+
+  </style>
+  <style id="febs-3d-addon">
+    /* ===== FEBS 3D ADD-ON (tambahan visual saja; seluruh fungsi asli tidak diubah) ===== */
+
+    /* 1) Canvas bintang jatuh 3D: berada di belakang seluruh konten aplikasi */
+    #febs-bg3d {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      display: block;
+    }
+    /* Area latar dibuat transparan agar bintang jatuh terlihat; kartu/tabel/modal tetap solid seperti semula */
+    /* Login: latar tetap solid (menutup aplikasi), canvas bintang dipindah ke dalam layar login oleh skrip */
+    .dark #auth-screen > div.relative.m-auto { background: rgba(18, 22, 32, 0.74) !important; }
+    html:not(.dark) #auth-screen > div.relative.m-auto { background: rgba(255, 255, 255, 0.80) !important; }
+    #app-shell > div.flex-1.flex-col { background: transparent !important; }
+    .dark #desktop-sidebar { background: rgba(18, 22, 32, 0.80) !important; }
+    html:not(.dark) #desktop-sidebar { background: rgba(255, 255, 255, 0.82) !important; }
+    .dark #app-shell > div.flex-1.flex-col > header { background: rgba(18, 22, 32, 0.72) !important; }
+    html:not(.dark) #app-shell > div.flex-1.flex-col > header { background: rgba(255, 255, 255, 0.78) !important; }
+
+    /* 2) Banner Dashboard 3D */
+    .febs-banner3d {
+      position: relative; overflow: hidden; isolation: isolate;
+      border-radius: 1.5rem; padding: 1.5rem 1.5rem; border: 0;
+      box-shadow: 0 26px 50px -26px rgba(249, 115, 22, 0.55);
+    }
+    /* bingkai gradien berputar */
+    .febs-banner3d::before {
+      content: ""; position: absolute; inset: -60%; z-index: -2;
+      background: conic-gradient(from 0deg, transparent 0 55%, #F97316 70%, #FDE047 80%, #38BDF8 88%, transparent 96%);
+      animation: fbSpinBorder 7s linear infinite;
+    }
+    /* permukaan banner */
+    .febs-banner3d::after {
+      content: ""; position: absolute; inset: 1.5px; z-index: -1; border-radius: calc(1.5rem - 1.5px);
+    }
+    .dark .febs-banner3d::after {
+      background:
+        radial-gradient(700px 240px at 88% -30%, rgba(249,115,22,.34), transparent 60%),
+        radial-gradient(520px 220px at 0% 130%, rgba(56,189,248,.14), transparent 60%),
+        linear-gradient(135deg, #171C28 0%, #0E121A 55%, #1B140E 100%);
+    }
+    html:not(.dark) .febs-banner3d::after {
+      background:
+        radial-gradient(700px 240px at 88% -30%, rgba(249,115,22,.22), transparent 60%),
+        linear-gradient(135deg, #FFF7ED 0%, #FFFFFF 55%, #FFEDD5 100%);
+    }
+    @keyframes fbSpinBorder { to { transform: rotate(360deg); } }
+    .febs-banner3d > *:not(.febs-banner-deco) { position: relative; z-index: 2; }
+    .febs-banner3d h1 {
+      background: linear-gradient(90deg, #FFFFFF 0%, #FED7AA 45%, #FB923C 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+      filter: drop-shadow(0 2px 10px rgba(249,115,22,.35));
+    }
+    html:not(.dark) .febs-banner3d h1 { background: linear-gradient(90deg, #0F172A 0%, #9A3412 60%, #EA580C 100%);
+      -webkit-background-clip: text; background-clip: text; filter: none; }
+    .febs-banner-deco { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+    /* aurora bergerak */
+    .fb-aurora { position: absolute; inset: -30%;
+      background:
+        radial-gradient(40% 50% at 25% 40%, rgba(249,115,22,.30), transparent 70%),
+        radial-gradient(35% 45% at 70% 60%, rgba(251,191,36,.20), transparent 70%),
+        radial-gradient(30% 40% at 55% 20%, rgba(56,189,248,.16), transparent 70%);
+      filter: blur(18px); animation: fbAurora 12s ease-in-out infinite alternate; }
+    @keyframes fbAurora { from { transform: translate3d(-4%, -2%, 0) rotate(0deg); } to { transform: translate3d(5%, 3%, 0) rotate(8deg); } }
+
+    /* lantai grid perspektif */
+    .fb-grid {
+      position: absolute; left: -10%; right: -10%; bottom: -60%; height: 125%;
+      background-image: linear-gradient(rgba(249,115,22,.40) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,.40) 1px, transparent 1px);
+      background-size: 36px 36px; transform: perspective(360px) rotateX(66deg); transform-origin: 50% 0;
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.95), transparent 72%); mask-image: linear-gradient(to bottom, rgba(0,0,0,.95), transparent 72%);
+      opacity: .6; animation: fbGridMove 4.5s linear infinite;
+    }
+    @keyframes fbGridMove { to { background-position: 0 36px, 36px 0; } }
+
+    /* pita cahaya yang menyapu banner */
+    .fb-beam { position: absolute; top: -20%; bottom: -20%; width: 90px; left: -120px;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,.14), rgba(253,224,71,.12), transparent);
+      transform: skewX(-20deg); animation: fbBeam 6.5s ease-in-out infinite; }
+    @keyframes fbBeam { 0% { left: -120px; opacity: 0; } 12% { opacity: 1; } 55% { left: 110%; opacity: 1; } 100% { left: 110%; opacity: 0; } }
+
+    /* bintang jatuh kecil di dalam banner */
+    .fb-streak { position: absolute; width: 90px; height: 2px; border-radius: 9999px; opacity: 0;
+      background: linear-gradient(90deg, rgba(253,224,71,0), rgba(253,224,71,.95));
+      box-shadow: 0 0 8px rgba(251,191,36,.9); transform: rotate(35deg); animation: fbStreak 4.2s ease-in infinite; }
+    .fb-streak.k1 { left: 55%; top: -4%; }
+    .fb-streak.k2 { left: 78%; top: 6%; animation-delay: 1.5s; width: 70px; }
+    .fb-streak.k3 { left: 38%; top: -8%; animation-delay: 2.8s; width: 110px; }
+    @keyframes fbStreak { 0% { transform: translate3d(0,0,0) rotate(35deg); opacity: 0; } 8% { opacity: 1; }
+      35% { transform: translate3d(-170px, 120px, 0) rotate(35deg); opacity: 0; } 100% { transform: translate3d(-170px, 120px, 0) rotate(35deg); opacity: 0; } }
+
+    .fb-spark { position: absolute; width: 3px; height: 3px; border-radius: 9999px; background: #FDE047;
+      box-shadow: 0 0 8px 2px rgba(253,224,71,.8); animation: fbTwinkle 2.8s ease-in-out infinite; }
+    .fb-spark.s1 { left: 22%; top: 18%; } .fb-spark.s2 { left: 61%; top: 74%; animation-delay: .9s; }
+    .fb-spark.s3 { left: 74%; top: 24%; animation-delay: 1.7s; } .fb-spark.s4 { left: 47%; top: 12%; animation-delay: 2.2s; }
+    @keyframes fbTwinkle { 0%,100% { opacity: .15; transform: scale(.6); } 50% { opacity: 1; transform: scale(1.3); } }
+
+    /* objek 3D: tumpukan dokumen holografik + cincin orbit + kubus satelit */
+    .fb-scene {
+      position: absolute; top: 50%; right: 350px; width: 130px; height: 130px; margin-top: -65px;
+      perspective: 700px; transform-style: preserve-3d;
+      transform: rotateX(var(--fb-rx, 0deg)) rotateY(var(--fb-ry, 0deg));
+      transition: transform .25s ease-out;
+    }
+    .fb-stack { position: absolute; left: 50%; top: 50%; width: 70px; height: 90px; margin: -45px 0 0 -35px;
+      transform-style: preserve-3d; transform: rotateX(60deg) rotateZ(-38deg); }
+    .fb-doc { position: absolute; inset: 0; border-radius: 10px; border: 1.5px solid rgba(251,146,60,.95);
+      background: linear-gradient(135deg, rgba(249,115,22,.50), rgba(234,88,12,.14));
+      box-shadow: 0 0 18px rgba(249,115,22,.5) inset, 0 0 16px rgba(249,115,22,.35); }
+    .fb-doc.d1 { transform: translateZ(0); animation: fbDoc1 4s ease-in-out infinite; }
+    .fb-doc.d2 { transform: translateZ(16px); animation: fbDoc2 4s ease-in-out infinite; border-color: rgba(251,191,36,.95); }
+    .fb-doc.d3 { transform: translateZ(32px); animation: fbDoc3 4s ease-in-out infinite; border-color: rgba(253,224,71,.98);
+      display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(253,186,116,.45), rgba(249,115,22,.22)); }
+    .fb-doc.d3 svg { width: 34px; height: 34px; filter: drop-shadow(0 0 6px rgba(253,224,71,.9)); }
+    @keyframes fbDoc1 { 0%,100% { transform: translateZ(0); } 50% { transform: translateZ(4px); } }
+    @keyframes fbDoc2 { 0%,100% { transform: translateZ(16px); } 50% { transform: translateZ(26px); } }
+    @keyframes fbDoc3 { 0%,100% { transform: translateZ(32px); } 50% { transform: translateZ(50px); } }
+    .fb-ring { position: absolute; left: 50%; top: 50%; width: 124px; height: 124px; margin: -62px 0 0 -62px;
+      border-radius: 9999px; border: 2px solid rgba(251,191,36,.7);
+      box-shadow: 0 0 16px rgba(249,115,22,.5), 0 0 16px rgba(249,115,22,.35) inset;
+      transform: rotateX(72deg); animation: fbRing 6s linear infinite; }
+    .fb-ring2 { width: 100px; height: 100px; margin: -50px 0 0 -50px; border-color: rgba(56,189,248,.65);
+      box-shadow: 0 0 14px rgba(56,189,248,.45), 0 0 14px rgba(56,189,248,.25) inset; animation: fbRing2 8s linear infinite; }
+    @keyframes fbRing  { from { transform: rotateX(72deg) rotateZ(0deg); }  to { transform: rotateX(72deg) rotateZ(360deg); } }
+    @keyframes fbRing2 { from { transform: rotateY(72deg) rotateZ(360deg); } to { transform: rotateY(72deg) rotateZ(0deg); } }
+    .fb-sat { position: absolute; right: -6px; top: -4px; width: 28px; height: 28px; transform-style: preserve-3d; animation: fbSatBob 3.6s ease-in-out infinite; }
+    @keyframes fbSatBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .fb-cube { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; transform-style: preserve-3d; animation: fbSpin 9s linear infinite; }
+    .fb-cube i { position: absolute; inset: 0; border: 1.2px solid rgba(251,191,36,.95); border-radius: 4px;
+      background: linear-gradient(135deg, rgba(249,115,22,.55), rgba(234,88,12,.2)); box-shadow: 0 0 10px rgba(249,115,22,.6) inset, 0 0 10px rgba(249,115,22,.4); }
+    .fb-cube .f1 { transform: translateZ(11px); } .fb-cube .f2 { transform: rotateY(180deg) translateZ(11px); }
+    .fb-cube .f3 { transform: rotateY(90deg) translateZ(11px); } .fb-cube .f4 { transform: rotateY(-90deg) translateZ(11px); }
+    .fb-cube .f5 { transform: rotateX(90deg) translateZ(11px); } .fb-cube .f6 { transform: rotateX(-90deg) translateZ(11px); }
+    @keyframes fbSpin { from { transform: rotateX(-22deg) rotateY(0deg); } to { transform: rotateX(-22deg) rotateY(360deg); } }
+
+    /* Tablet kecil: objek 3D pindah ke pojok kanan atas, diperkecil */
+    @media (max-width: 1023px) {
+      .fb-scene { right: 10px; top: 10px; margin-top: 0; transform: scale(.62) rotateX(var(--fb-rx,0deg)) rotateY(var(--fb-ry,0deg)); transform-origin: top right; opacity: .85; }
+    }
+    /* Handphone: banner ringkas & rapi */
+    @media (max-width: 639px) {
+      .febs-banner3d { padding: .8rem .85rem; border-radius: 1rem; gap: .6rem !important; box-shadow: 0 16px 30px -20px rgba(249,115,22,.5); }
+      .febs-banner3d::after { border-radius: calc(1rem - 1.5px); }
+      .fb-scene, .fb-grid, .fb-beam, .fb-streak.k3, .fb-spark.s3, .fb-spark.s4 { display: none !important; }
+      .fb-aurora { opacity: .75; }
+      .febs-banner3d h1 { font-size: 1rem !important; line-height: 1.25 !important; margin-top: .15rem; }
+      .febs-banner3d p:not(.fb-quote) { display: none !important; }
+      .febs-banner3d .inline-flex.items-center.rounded-full { font-size: 8.5px !important; letter-spacing: .02em; padding: .18rem .5rem !important; max-width: 100%; }
+      .febs-banner3d > div:last-child { width: 100%; display: flex; flex-wrap: nowrap !important; gap: .45rem !important; }
+      .febs-banner3d > div:last-child > button { flex: 1 1 0%; min-width: 0; justify-content: center; text-align: center; line-height: 1.15;
+        padding: .5rem .45rem !important; font-size: 10px !important; border-radius: .7rem !important; gap: .3rem !important; }
+      .febs-banner3d > div:last-child > button svg { width: 13px !important; height: 13px !important; flex-shrink: 0; }
+      .fb-quote { margin-top: .45rem !important; padding: .4rem .55rem !important; font-size: 10.5px !important; }
+      .fb-quote .fb-quote-tag { font-size: 8px !important; }
+    }
+
+    /* Kutipan HSE di banner */
+    .fb-quote { position: relative; margin-top: .7rem; padding: .55rem .8rem .55rem .9rem; max-width: 560px; border-radius: .85rem;
+      border: 1px solid rgba(249,115,22,.28); background: linear-gradient(90deg, rgba(249,115,22,.14), rgba(249,115,22,.03)); }
+    .fb-quote::before { content: ""; position: absolute; left: 0; top: 18%; bottom: 18%; width: 3px; border-radius: 9999px;
+      background: linear-gradient(#FDE047, #F97316); box-shadow: 0 0 10px rgba(249,115,22,.9); }
+    .fb-quote .fb-quote-tag { display: block; font-size: 9px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: #FB923C; margin-bottom: 2px; }
+    .fb-quote .fb-quote-text { display: block; font-size: 12.5px; font-weight: 600; line-height: 1.4; font-style: italic; color: #FFEDD5; transition: opacity .45s ease, transform .45s ease; }
+    html:not(.dark) .fb-quote .fb-quote-text { color: #7C2D12; }
+    .fb-quote .fb-quote-text.fb-out { opacity: 0; transform: translateY(5px); }
+    /* Desain judul halaman: judul + subjudul menjadi satu blok */
+    .fb-ph { position: relative; padding: 11px 18px 11px 24px; border-radius: 16px; max-width: 100%;
+      border: 1px solid rgba(249,115,22,.22);
+      background: linear-gradient(90deg, rgba(249,115,22,.14), rgba(249,115,22,.02) 70%);
+      box-shadow: 0 12px 26px -20px rgba(249,115,22,.6), 0 1px 0 rgba(255,255,255,.04) inset; }
+    html:not(.dark) .fb-ph { background: linear-gradient(90deg, rgba(249,115,22,.12), rgba(255,255,255,.6) 70%); }
+    .fb-ph::before { content: ""; position: absolute; left: 10px; top: 12px; bottom: 12px; width: 4px; border-radius: 9999px;
+      background: linear-gradient(#FDE047, #F97316 55%, #EA580C); box-shadow: 0 0 14px rgba(249,115,22,.75); }
+    .fb-ph h1 { font-weight: 800 !important; letter-spacing: -.02em !important; line-height: 1.2 !important;
+      background: linear-gradient(90deg, #FFFFFF 0%, #FED7AA 55%, #FB923C 100%); -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent; }
+    html:not(.dark) .fb-ph h1 { background: linear-gradient(90deg, #0F172A 0%, #9A3412 60%, #EA580C 100%); -webkit-background-clip: text; background-clip: text; }
+    .fb-ph p { margin-top: 4px !important; font-size: 12px !important; line-height: 1.55 !important; max-width: 780px; color: #94A3B8 !important; }
+    html:not(.dark) .fb-ph p { color: #64748B !important; }
+    @media (max-width: 639px) { .fb-ph { padding: 9px 12px 9px 20px; border-radius: 14px; } .fb-ph::before { left: 8px; top: 10px; bottom: 10px; width: 3px; } .fb-ph p { font-size: 11px !important; } }
+
+    /* Kartu profil sidebar bawah: bersih & rapi */
+    #desktop-sidebar > div:last-child { padding: 10px 12px 12px !important; gap: 8px !important; }
+    #desktop-sidebar > div:last-child > div:first-child {
+      padding: 10px 11px !important; border-radius: 14px !important; position: relative;
+      border: 1px solid rgba(249,115,22,.22) !important; box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 10px 18px -14px rgba(0,0,0,.8); }
+    .dark #desktop-sidebar > div:last-child > div:first-child { background: linear-gradient(180deg, rgba(249,115,22,.10), rgba(22,27,38,.96) 70%) !important; }
+    html:not(.dark) #desktop-sidebar > div:last-child > div:first-child { background: linear-gradient(180deg, #FFF3E6, #FFFFFF 75%) !important; }
+    #desktop-sidebar > div:last-child > div:first-child > div:first-child { gap: 10px !important; align-items: center !important; }
+    #sidebar-user-avatar-wrap { flex: 0 0 34px !important; width: 34px !important; height: 34px !important; font-size: 13px !important; border: 0 !important;
+      background: linear-gradient(135deg, #FB923C, #EA580C) !important;
+      box-shadow: 0 0 0 2px rgba(11,14,20,.95), 0 0 0 3.5px rgba(249,115,22,.9); }
+    html:not(.dark) #sidebar-user-avatar-wrap { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px rgba(249,115,22,.9); }
+    #sidebar-user-name { font-size: 12.5px !important; line-height: 1.25 !important; font-weight: 800 !important; }
+    #sidebar-user-role { margin-top: 2px !important; font-size: 9px !important; font-weight: 800 !important; letter-spacing: .1em !important; color: #FB923C !important; }
+    #desktop-sidebar > div:last-child > div:first-child > div:last-child {
+      margin-top: 9px !important; padding: 8px 0 0 !important; border-top: 1px dashed rgba(148,163,184,.28) !important;
+      justify-content: flex-start !important; font-size: 10px !important; font-weight: 600; color: #34D399 !important; }
+    html:not(.dark) #desktop-sidebar > div:last-child > div:first-child > div:last-child { color: #047857 !important; }
+    #desktop-sidebar > div:last-child > div:first-child > div:last-child svg { width: 12px !important; height: 12px !important; color: #34D399 !important; }
+    #desktop-sidebar > div:last-child > div:first-child > div:last-child span { color: inherit !important; }
+    /* baris hak cipta: tanpa kotak, cukup teks halus */
+    #desktop-sidebar > div:last-child > div:last-child { padding: 0 !important; border: 0 !important; background: transparent !important; font-size: 9.5px !important; opacity: .85; }
+    #desktop-sidebar > div:last-child > div:last-child svg { width: 11px !important; height: 11px !important; }
+
+    /* Layar login: tidak terpotong, bisa digulir, dan lebih ringkas */
+    #auth-screen { overflow-y: auto !important; overflow-x: hidden !important; align-items: flex-start !important; -webkit-overflow-scrolling: touch;
+      padding-bottom: max(12px, env(safe-area-inset-bottom)) !important; }
+    #auth-screen > div.relative.m-auto { flex-shrink: 0; margin-top: auto !important; margin-bottom: auto !important; }
+    @media (max-height: 820px), (max-width: 767px) {
+      #auth-screen > div.relative.m-auto { padding-top: 14px !important; padding-bottom: 14px !important; }
+      #auth-screen .flex.flex-col.items-center.text-center { margin-bottom: 10px !important; }
+      #auth-screen .flex.flex-col.items-center.text-center > .inline-flex { margin-top: 6px !important; font-size: 9px !important; }
+      #login-preview-banner { margin-bottom: 8px !important; padding: 8px !important; }
+      #login-preview-banner p { display: none; }
+      #login-preview-banner .mt-2 { margin-top: 6px !important; }
+      #tab-login-user, #tab-login-admin { padding-top: .3rem !important; padding-bottom: .3rem !important; }
+      #login-form.space-y-3 > * + * { margin-top: .55rem !important; }
+      #login-form input { padding-top: .45rem !important; padding-bottom: .45rem !important; }
+      #login-form + div { margin-top: 10px !important; padding-top: 8px !important; }
+      #login-form + div + div { margin-top: 6px !important; }
+    }
+    @media (min-width: 768px) and (max-height: 720px) {
+      #auth-screen .flex.flex-col.items-center.text-center > .inline-flex { display: none !important; }
+      #login-form + div + div { display: none !important; }
+    }
+    @media (max-width: 767px) {
+      .dark #auth-screen > div.relative.m-auto { background: rgba(14, 18, 27, 0.30) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+      html:not(.dark) #auth-screen > div.relative.m-auto { background: rgba(255, 255, 255, 0.50) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+      #auth-screen > div.relative.m-auto { min-height: 0 !important; margin: 0 !important; justify-content: flex-start !important; }
+    }
+
+    /* 3) Pilihan menu bergaya 3D (sidebar, drawer HP, dan bottom-nav) */
+    #sidebar-nav-utama, #sidebar-nav-manajemen, #mobile-drawer-links { perspective: 900px; }
+    #sidebar-nav-utama [data-menu], #sidebar-nav-manajemen [data-menu], #mobile-drawer-links [data-menu] {
+      position: relative; overflow: hidden; transform-style: preserve-3d; will-change: transform;
+      transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, background .28s ease;
+      box-shadow: 0 1px 0 rgba(255,255,255,.07) inset, 0 3px 0 rgba(0,0,0,.30), 0 10px 16px -10px rgba(0,0,0,.65);
+    }
+    html:not(.dark) #sidebar-nav-utama [data-menu], html:not(.dark) #sidebar-nav-manajemen [data-menu], html:not(.dark) #mobile-drawer-links [data-menu] {
+      box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 3px 0 rgba(15,23,42,.10), 0 10px 16px -10px rgba(15,23,42,.30);
+    }
+    #sidebar-nav-utama [data-menu]::after, #sidebar-nav-manajemen [data-menu]::after, #mobile-drawer-links [data-menu]::after {
+      content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; pointer-events: none;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,.16), transparent);
+      transform: skewX(-18deg); transition: left .6s ease;
+    }
+    #sidebar-nav-utama [data-menu]:hover, #sidebar-nav-manajemen [data-menu]:hover, #mobile-drawer-links [data-menu]:hover {
+      transform: translate3d(3px,-2px,14px) rotateX(5deg) rotateY(-4deg);
+      box-shadow: 0 1px 0 rgba(255,255,255,.10) inset, 0 5px 0 rgba(0,0,0,.30), 0 16px 22px -10px rgba(249,115,22,.50);
+    }
+    #sidebar-nav-utama [data-menu]:hover::after, #sidebar-nav-manajemen [data-menu]:hover::after, #mobile-drawer-links [data-menu]:hover::after { left: 120%; }
+    #sidebar-nav-utama [data-menu]:active, #sidebar-nav-manajemen [data-menu]:active, #mobile-drawer-links [data-menu]:active {
+      transform: translate3d(0,2px,0) scale(.985);
+      box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 1px 0 rgba(0,0,0,.30);
+    }
+    /* menu aktif */
+    #sidebar-nav-utama [data-menu].bg-orange-500\/15, #sidebar-nav-manajemen [data-menu].bg-orange-500\/15, #mobile-drawer-links [data-menu].bg-orange-500\/15 {
+      background: linear-gradient(135deg, rgba(249,115,22,.34), rgba(234,88,12,.10)) !important;
+      transform: translate3d(2px,-1px,10px);
+      box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 4px 0 rgba(154,52,18,.60), 0 14px 22px -8px rgba(249,115,22,.55);
+    }
+    #sidebar-nav-utama [data-menu].bg-orange-500\/15::before, #sidebar-nav-manajemen [data-menu].bg-orange-500\/15::before, #mobile-drawer-links [data-menu].bg-orange-500\/15::before {
+      content: ""; position: absolute; left: 4px; top: 22%; bottom: 22%; width: 3px; border-radius: 9999px;
+      background: linear-gradient(#FDE047, #F97316); box-shadow: 0 0 10px rgba(249,115,22,.9);
+    }
+    #sidebar-nav-utama [data-menu] svg, #sidebar-nav-manajemen [data-menu] svg, #mobile-drawer-links [data-menu] svg { transition: transform .28s ease, filter .28s ease; }
+    #sidebar-nav-utama [data-menu]:hover svg, #sidebar-nav-manajemen [data-menu]:hover svg, #mobile-drawer-links [data-menu]:hover svg {
+      transform: translateZ(18px) scale(1.15) rotate(-6deg); filter: drop-shadow(0 3px 4px rgba(249,115,22,.55));
+    }
+    #sidebar-nav-utama [data-menu].bg-orange-500\/15 svg, #sidebar-nav-manajemen [data-menu].bg-orange-500\/15 svg, #mobile-drawer-links [data-menu].bg-orange-500\/15 svg {
+      filter: drop-shadow(0 2px 5px rgba(249,115,22,.75));
+    }
+    /* bottom-nav HP */
+    #mobile-bottom-nav [data-menu], #mobile-bottom-nav #btn-mobile-more-dyn { transition: transform .25s ease; }
+    #mobile-bottom-nav [data-menu].text-orange-500 { transform: translateY(-4px); }
+    #mobile-bottom-nav [data-menu].text-orange-500 svg { filter: drop-shadow(0 4px 6px rgba(249,115,22,.75)); transform: scale(1.18); }
+    #mobile-bottom-nav [data-menu]:active, #mobile-bottom-nav #btn-mobile-more-dyn:active { transform: translateY(1px) scale(.95); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fb-grid, .fb-orb, .fb-cube, .fb-ring, .fb-ring2, .fb-spark { animation: none !important; }
+    }
   </style>
 </head>
 
+
 <body class="bg-slate-50 text-slate-900 dark:bg-[#0B0E14] dark:text-slate-100 antialiased selection:bg-orange-500 selection:text-white">
   <div id="hse-app-root" class="bg-slate-50 dark:bg-[#0B0E14] transition-colors duration-200">
+    <canvas id="febs-bg3d" aria-hidden="true"></canvas>
 
     <!-- ==================== LAYAR LOGIN HYBRID (FEBS FILES) ==================== -->
     <div id="auth-screen" class="fixed inset-0 z-50 flex overflow-y-auto p-3 sm:p-5 bg-slate-100/95 dark:bg-[#0B0E14]">
@@ -2649,8 +2973,27 @@
 
       return `
         <div class="space-y-6">
-          <!-- Page Header -->
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <!-- Page Header (Banner 3D) -->
+          <div class="febs-banner3d flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="febs-banner-deco" aria-hidden="true">
+              <div class="fb-aurora"></div>
+              <div class="fb-grid"></div>
+              <div class="fb-beam"></div>
+              <span class="fb-streak k1"></span><span class="fb-streak k2"></span><span class="fb-streak k3"></span>
+              <span class="fb-spark s1"></span><span class="fb-spark s2"></span><span class="fb-spark s3"></span><span class="fb-spark s4"></span>
+              <div class="fb-scene">
+                <div class="fb-ring"></div>
+                <div class="fb-ring fb-ring2"></div>
+                <div class="fb-stack">
+                  <div class="fb-doc d1"></div>
+                  <div class="fb-doc d2"></div>
+                  <div class="fb-doc d3">
+                    <svg viewBox="0 0 64 64" fill="none"><path d="M32 6L54 15V32C54 46 44.5 54.5 32 58C19.5 54.5 10 46 10 32V15L32 6Z" stroke="#FDE047" stroke-width="4"/><path d="M23 25H41M23 33H35M23 25V42" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                </div>
+                <div class="fb-sat"><div class="fb-cube"><i class="f1"></i><i class="f2"></i><i class="f3"></i><i class="f4"></i><i class="f5"></i><i class="f6"></i></div></div>
+              </div>
+            </div>
             <div>
               <div class="flex flex-wrap items-center gap-2 mb-2">
                 <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-[11px] font-bold">
@@ -2667,9 +3010,13 @@
               <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Dashboard K3 & Ringkasan Dokumen</h1>
               <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                 ${isAdmin
-                  ? 'Ringkasan eksekutif pengendalian dokumen, upload multi-device (PC/HP), dan pantauan aktivitas klien real-time.'
+                  ? 'Ringkasan eksekutif pengendalian dokumen, unggahan multi-perangkat (PC/HP), dan pemantauan aktivitas klien secara real-time.'
                   : 'Ringkasan dokumen keselamatan kerja (K3/HSE), status berkas aktif, dan akses cepat operasional.'}
               </p>
+              <div class="fb-quote">
+                <span class="fb-quote-tag">Safety Mindset</span>
+                <span class="fb-quote-text" data-fb-quote>Keselamatan bukan sekadar prioritas, melainkan nilai yang kita jalani setiap hari.</span>
+              </div>
             </div>
             <div class="flex flex-wrap items-center gap-2.5">
               ${isAdmin ? `
@@ -2808,7 +3155,7 @@
       `;
     }
 
-    function renderDocumentsView(customTitle = "Semua Dokumen", customSubtitle = "Tabel dan kartu dokumen dengan upload file PC/HP, pencarian, filter, visibilitas klien, dan tautan Drive.", baseSubset = null) {
+    function renderDocumentsView(customTitle = "Semua Dokumen", customSubtitle = "Repositori dokumen K3/HSE terpusat: unggah dari PC maupun HP, pencarian dan filter terstruktur, pengaturan visibilitas klien, serta tautan Google Drive.", baseSubset = null) {
       const sourceDocs = baseSubset || getAccessibleDocuments();
       const filteredDocs = getFilteredAndSortedDocuments(sourceDocs);
       const totalItems = filteredDocs.length;
@@ -3197,7 +3544,7 @@
               </div>
               <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Sampah & Recovery File</h1>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Daftar dokumen yang telah dihapus oleh Klien maupun Admin. Anda dapat memulihkan (Recovery) file atau menghapusnya secara permanen.
+                Arsip berkas yang dihapus oleh Klien maupun Admin. Pulihkan (Recovery) dokumen yang diperlukan, atau hapus permanen setelah diverifikasi.
               </p>
             </div>
             ${trashedDocs.length > 0 ? `
@@ -3293,7 +3640,7 @@
             <div>
               <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Hidden / Show Dokumen dari Klien</h1>
               <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Atur dokumen mana saja yang boleh dilihat oleh Klien (Show) atau disembunyikan secara rahasia (Hidden).
+                Kendalikan dokumen yang dapat diakses Klien (Show) atau dibatasi secara rahasia (Hidden) untuk menjaga kerahasiaan berkas internal.
               </p>
             </div>
             <div class="flex flex-wrap rounded-xl border border-slate-200 dark:border-[#222938] bg-white dark:bg-[#161B26] p-1 gap-1 self-start">
@@ -3435,7 +3782,7 @@
             <div>
               <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Pemantauan Aktivitas Klien (Activity Log)</h1>
               <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Rekam jejak seluruh aktivitas yang dilakukan oleh Klien maupun Admin (Login, Upload File, Hapus File, Unduh, dan Perubahan Profil).
+                Jejak audit seluruh aktivitas Klien dan Admin: login, unggah, hapus, unduh, serta perubahan profil, demi transparansi dan akuntabilitas.
               </p>
             </div>
             <div class="flex flex-wrap items-center gap-2 self-start">
@@ -3570,7 +3917,7 @@
             <div>
               <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Folder HSE</h1>
               <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Klasifikasi dokumen berdasarkan struktur folder standar Sistem Manajemen K3 (SMK3, ISO 45001, SMKP, CSMS).
+                Klasifikasi dokumen berdasarkan struktur standar Sistem Manajemen K3 (SMK3, ISO 45001, SMKP, CSMS) agar berkas terorganisasi dan siap diaudit.
               </p>
             </div>
             ${state.currentUser && state.currentUser.isAdmin ? `
@@ -3623,7 +3970,7 @@
             <div>
               <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Kategori Dokumen K3</h1>
               <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Kelompokkan berkas berdasarkan fungsi operasional K3 untuk memudahkan pencarian saat audit.
+                Pengelompokan berkas berdasarkan fungsi operasional K3 untuk mempercepat pencarian dan kesiapan dokumen saat audit.
               </p>
             </div>
             ${canManageCategories ? `
@@ -3670,7 +4017,7 @@
             <div>
               <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Tautan Google Drive</h1>
               <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Direktori pintasan folder cloud Google Drive eksternal untuk penyimpanan berkas master dan bukti audit K3.
+                Pintasan terpusat ke folder Google Drive eksternal sebagai penyimpanan berkas master dan bukti audit K3.
               </p>
             </div>
             <button type="button" id="btn-add-drive-link" class="px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm font-bold shadow-lg shadow-orange-500/20 transition flex items-center gap-2 self-start">
@@ -3727,7 +4074,7 @@
             <div>
               <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Manajemen Klien & Personel K3</h1>
               <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Kelola kredensial login untuk Klien / Personel K3. Klien yang terdaftar memiliki akses untuk mengunggah (Upload) dan menghapus (Delete) file.
+                Kelola kredensial login Klien dan Personel K3. Akun terdaftar memiliki hak untuk mengunggah (Upload) dan menghapus (Delete) berkas.
               </p>
             </div>
             <button type="button" id="btn-add-user" class="px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm font-bold shadow-lg shadow-orange-500/20 transition flex items-center gap-2 self-start shrink-0">
@@ -3853,7 +4200,7 @@
               <div>
                 <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Pengaturan, Foto Profil & Keamanan</h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Unggah atau ganti foto profil dari PC/Laptop/Handphone, perbarui identitas perusahaan, dan kelola keamanan sesi.
+                  Perbarui foto profil dari PC, laptop, atau HP, lengkapi identitas perusahaan, dan kelola keamanan sesi akun Anda.
                 </p>
               </div>
               <button type="submit" class="self-start sm:self-auto shrink-0 px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold shadow-lg shadow-orange-500/25 transition flex items-center gap-2">
@@ -4102,7 +4449,8 @@
         <form id="modal-doc-form" class="space-y-4 text-xs sm:text-sm">
           <!-- Kotak Upload File dari PC / Laptop / Handphone -->
           <div class="rounded-2xl border-2 border-dashed border-orange-500/40 bg-orange-500/5 p-4 text-center">
-            <input type="file" id="doc-device-file" accept=".pdf,.xls,.xlsx,.csv,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.zip" class="hidden" />
+            <!-- Gunakan pemilih berkas umum agar klik area upload di HP membuka Files/Manajer File, bukan hanya pilihan Kamera/Album/Foto. Validasi format dilakukan oleh JavaScript setelah file dipilih. -->
+            <input type="file" id="doc-device-file" accept="*/*" class="hidden" />
             <label for="doc-device-file" class="cursor-pointer flex flex-col items-center justify-center gap-2">
               <div class="w-11 h-11 rounded-2xl bg-orange-500/20 text-orange-500 flex items-center justify-center">
                 <i data-lucide="upload-cloud" class="w-6 h-6"></i>
@@ -4384,11 +4732,17 @@
       bindInlineMasterOption("folder");
       bindInlineMasterOption("industry");
 
-      // Handler pilih file dari PC / Laptop / HP
+      // Satu pemilih berkas untuk PC dan HP. accept="*/*" mengarahkan Android ke pemilih Files/Manajer File; validasi ekstensi dilakukan setelah pemilihan.
       const fileInput = document.getElementById("doc-device-file");
-      fileInput.addEventListener("change", (ev) => {
-        const file = ev.target.files && ev.target.files[0];
+      const handleSelectedDocumentFile = (file) => {
         if (!file) return;
+        // File Manager membuka semua jenis berkas; batasi pemrosesan pada format yang memang didukung aplikasi.
+        const allowedExtensions = new Set(["pdf", "xls", "xlsx", "csv", "doc", "docx", "ppt", "pptx", "jpg", "jpeg", "png", "zip"]);
+        const pickedExtension = (file.name.split(".").pop() || "").toLowerCase();
+        if (!allowedExtensions.has(pickedExtension)) {
+          showToast("Format file tidak didukung. Pilih PDF, Excel/CSV, Word, PPT, JPG/PNG, atau ZIP.");
+          return;
+        }
         stagedFileName = file.name;
         stagedFileSize = formatBytes(file.size);
 
@@ -4416,6 +4770,9 @@
         } else {
           stagedFileDataUrl = URL.createObjectURL(file);
         }
+      };
+      fileInput.addEventListener("change", (ev) => {
+        handleSelectedDocumentFile(ev.target.files && ev.target.files[0]);
       });
 
       document.getElementById("btn-cancel-doc-modal").addEventListener("click", closeModal);
@@ -4552,10 +4909,10 @@
         viewHtml = renderCategoriesView();
       } else if (state.activeMenu === 'favorites') {
         const favSubset = accessible.filter(d => d.isFavorite);
-        viewHtml = renderDocumentsView("Dokumen Favorit", "Daftar dokumen K3 prioritas yang Anda tandai bintang untuk akses cepat.", favSubset);
+        viewHtml = renderDocumentsView("Dokumen Favorit", "Dokumen K3 prioritas yang telah ditandai untuk akses cepat saat inspeksi, audit, maupun pekerjaan lapangan.", favSubset);
       } else if (state.activeMenu === 'recent') {
         const recentSubset = [...accessible].sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-        viewHtml = renderDocumentsView("Dokumen Terbaru", "Riwayat dokumen K3 yang baru diupload atau diperbarui revisinya.", recentSubset);
+        viewHtml = renderDocumentsView("Dokumen Terbaru", "Dokumen K3 yang baru diunggah atau direvisi, memastikan setiap pekerjaan mengacu pada versi terkini.", recentSubset);
       } else if (state.activeMenu === 'drive') {
         viewHtml = renderDriveLinksView();
       } else if (state.activeMenu === 'visibility') {
@@ -5534,5 +5891,235 @@
       lucide.createIcons();
     });
   </script>
+  <script id="febs-3d-addon-js">
+  /* FEBS 3D ADD-ON: Bintang jatuh 3D (canvas) + efek tilt banner. Tidak menyentuh logika aplikasi. */
+  (function () {
+    "use strict";
+    var canvas = document.getElementById("febs-bg3d");
+    if (!canvas) return;
+    var ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var W = 0, H = 0, dpr = 1, FOCAL = 420, camX = 0, camY = 0, tCamX = 0, tCamY = 0;
+    var stars = [], meteors = [], last = 0, running = true, authMode = false, baseMeteor = 12, MOB = 1;
+    var COLORS = ["249,115,22", "251,146,60", "251,191,36", "253,224,71", "255,237,213", "56,189,248"];
+    var WEIGHTS = [28, 22, 20, 14, 10, 6]; // dominan oranye/amber sesuai warna asli aplikasi
+
+    function pickColor() {
+      var t = WEIGHTS.reduce(function (a, b) { return a + b; }, 0), r = Math.random() * t, i = 0;
+      for (; i < WEIGHTS.length; i++) { r -= WEIGHTS[i]; if (r <= 0) break; }
+      return COLORS[Math.min(i, COLORS.length - 1)];
+    }
+    function isDark() { return document.documentElement.classList.contains("dark"); }
+    function rand(a, b) { return a + Math.random() * (b - a); }
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth; H = window.innerHeight;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var area = W * H;
+      var nStars = Math.max(70, Math.min(260, Math.round(area / 6500)));
+      MOB = W < 768 ? 1.45 : 1;
+      baseMeteor = Math.max(W < 768 ? 16 : 12, Math.min(28, Math.round(area / 42000)));
+      var nMeteor = Math.min(Math.round(baseMeteor * (W < 768 ? 2 : 1.8)), 48); // total tersedia untuk layar login
+      stars = []; meteors = [];
+      for (var i = 0; i < nStars; i++) stars.push({
+        x: rand(0, W), y: rand(0, H), z: rand(80, 1100), r: rand(.5, 1.5),
+        c: pickColor(), p: rand(0, 6.28), sp: rand(.6, 1.8)
+      });
+      for (var k = 0; k < nMeteor; k++) { var m = {}; spawn(m, true); meteors.push(m); }
+    }
+
+    function spawn(m, first) {
+      m.x = rand(-W * .2, W * 1.5);
+      m.y = rand(-H * 1.1, -H * .1);
+      m.z = rand(60, 900);
+      m.ang = rand(2.25, 2.75);               // arah jatuh ke kiri-bawah
+      m.spd = rand(300, 640);
+      m.vz = -rand(8, 60);                    // mendekat ke kamera, kesan 3D
+      m.len = Math.floor(rand(12, 26));
+      m.c = pickColor();
+      m.hist = [];
+      m.delay = first ? rand(0, 4) : rand(.2, 3.2);
+      m.base = rand(1.8, 3.4);
+      m.spark = Math.random() < .55;
+    }
+
+    function proj(x, y, z) {
+      var s = FOCAL / (FOCAL + z);
+      return { x: x - camX * (1 - s), y: y - camY * (1 - s), s: s };
+    }
+
+    function drawStars(t, dark) {
+      for (var i = 0; i < stars.length; i++) {
+        var s = stars[i];
+        var p = proj(s.x, s.y, s.z);
+        if (p.x < -10 || p.x > W + 10 || p.y < -10 || p.y > H + 10) continue;
+        var tw = reduce ? .7 : .45 + .55 * Math.sin(t * s.sp + s.p);
+        var a = (dark ? .9 : .65) * tw * (MOB > 1 ? 1.2 : 1) * (0.35 + p.s);
+        var r = s.r * MOB * (0.5 + p.s * 1.4);
+        ctx.fillStyle = "rgba(" + s.c + "," + Math.min(a, 1).toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.2832); ctx.fill();
+        if (r > 1.25 && dark) {
+          var g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 5);
+          g.addColorStop(0, "rgba(" + s.c + "," + (a * .35).toFixed(3) + ")");
+          g.addColorStop(1, "rgba(" + s.c + ",0)");
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, r * 5, 0, 6.2832); ctx.fill();
+        }
+      }
+    }
+
+    function drawMeteor(m, dt, dark) {
+      if (m.delay > 0) { m.delay -= dt; return; }
+      var ps = FOCAL / (FOCAL + Math.max(m.z, 1)), k0 = .35 + ps * .9;
+      var dx = Math.cos(m.ang) * m.spd * k0 * dt, dy = Math.sin(m.ang) * m.spd * k0 * dt;
+      m.x += dx; m.y += dy; m.z += m.vz * dt;
+      var p = proj(m.x, m.y, Math.max(m.z, 1));
+      m.hist.push({ x: p.x, y: p.y, s: p.s });
+      if (m.hist.length > m.len) m.hist.shift();
+      var off = p.x < -140 || p.y > H + 140 || m.z < 5;
+      if (off && m.hist.length) { m.hist.shift(); if (m.hist.length < 2) { spawn(m, false); return; } }
+      var h = m.hist; if (h.length < 2) return;
+      var head = h[h.length - 1], size = m.base * MOB * (0.5 + head.s * 1.6);
+      ctx.lineCap = "round";
+      for (var i = 1; i < h.length; i++) {
+        var k = i / h.length, a = Math.pow(k, 1.7) * (dark ? .9 : .7);
+        ctx.strokeStyle = "rgba(" + m.c + "," + a.toFixed(3) + ")";
+        ctx.lineWidth = Math.max(.4, size * k * 1.15);
+        ctx.beginPath(); ctx.moveTo(h[i - 1].x, h[i - 1].y); ctx.lineTo(h[i].x, h[i].y); ctx.stroke();
+      }
+      // cahaya kepala bintang
+      var gr = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, size * 6);
+      gr.addColorStop(0, "rgba(255,255,255," + (dark ? .95 : .8) + ")");
+      gr.addColorStop(.25, "rgba(" + m.c + ",.75)");
+      gr.addColorStop(1, "rgba(" + m.c + ",0)");
+      ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(head.x, head.y, size * 6, 0, 6.2832); ctx.fill();
+      // kilau empat titik untuk bintang yang dekat
+      if (m.spark && head.s > .5) {
+        var L = size * 7, w = size * .5;
+        ctx.fillStyle = "rgba(255,255,255," + (dark ? .75 : .5) + ")";
+        ctx.beginPath();
+        ctx.moveTo(head.x - L, head.y); ctx.lineTo(head.x, head.y - w); ctx.lineTo(head.x + L, head.y); ctx.lineTo(head.x, head.y + w); ctx.closePath();
+        ctx.moveTo(head.x, head.y - L); ctx.lineTo(head.x + w, head.y); ctx.lineTo(head.x, head.y + L); ctx.lineTo(head.x - w, head.y); ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    function frame(ts) {
+      if (!running) return;
+      var t = ts / 1000, dt = Math.min(.05, last ? t - last : .016); last = t;
+      camX += (tCamX - camX) * .05; camY += (tCamY - camY) * .05;
+      var dark = isDark();
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = dark ? "lighter" : "source-over";
+      drawStars(t, dark);
+      var lim = authMode ? meteors.length : Math.min(baseMeteor, meteors.length);
+      var lim2 = reduce ? Math.ceil(lim / 2) : lim; // 'kurangi gerakan': tetap tampil, lebih sedikit
+      for (var i = 0; i < lim2; i++) drawMeteor(meteors[i], reduce ? dt * .7 : dt, dark);
+      ctx.globalCompositeOperation = "source-over";
+      requestAnimationFrame(frame);
+    }
+
+    window.addEventListener("resize", function () { resize(); });
+    window.addEventListener("pointermove", function (e) {
+      tCamX = (e.clientX / Math.max(W, 1) - .5) * 60;
+      tCamY = (e.clientY / Math.max(H, 1) - .5) * 40;
+    }, { passive: true });
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) { running = false; }
+      else if (!running) { running = true; last = 0; requestAnimationFrame(frame); }
+    });
+
+    /* Saat layar login tampil, canvas dipindah ke dalamnya (di atas latar solid login, di bawah kartu login) */
+    var authEl = document.getElementById("auth-screen"), rootEl = document.getElementById("hse-app-root");
+    function placeCanvas() {
+      if (!authEl || !rootEl) return;
+      var authVisible = !authEl.classList.contains("hidden");
+      var target = authVisible ? authEl : rootEl;
+      if (canvas.parentNode !== target) target.insertBefore(canvas, target.firstChild);
+      authMode = authVisible;
+    }
+    placeCanvas();
+    if (authEl && window.MutationObserver) new MutationObserver(placeCanvas).observe(authEl, { attributes: true, attributeFilter: ["class"] });
+
+
+    /* Login (web): pastikan kartu selalu muat di tinggi layar */
+    function fitLogin() {
+      if (!authEl || authEl.classList.contains("hidden")) return;
+      var card = authEl.querySelector("div.relative.m-auto");
+      if (!card) return;
+      card.style.zoom = "1";
+      if (window.innerWidth < 768) return;
+      var h = card.offsetHeight, avail = window.innerHeight - 24;
+      var z = Math.max(.6, Math.min(1, avail / Math.max(h, 1)));
+      card.style.zoom = z < .995 ? z.toFixed(3) : "1";
+    }
+    var fitQueued = false;
+    function queueFit() { if (fitQueued) return; fitQueued = true; requestAnimationFrame(function () { fitQueued = false; fitLogin(); }); }
+    window.addEventListener("resize", queueFit);
+    if (authEl && window.MutationObserver) new MutationObserver(queueFit).observe(authEl, { attributes: true, attributeFilter: ["class"], subtree: true });
+    queueFit();
+
+    resize();
+    requestAnimationFrame(frame);
+
+
+    /* Kutipan HSE berganti otomatis di banner dashboard */
+    var QUOTES = [
+      "Keselamatan bukan sekadar prioritas, melainkan nilai yang kita jalani setiap hari.",
+      "Zero accident dimulai dari kebiasaan kecil yang dilakukan dengan disiplin.",
+      "Pekerjaan boleh mendesak, keselamatan tidak boleh ditawar.",
+      "Dokumen K3 yang rapi adalah perisai pertama bagi setiap pekerja.",
+      "Lihat bahaya, hentikan pekerjaan, laporkan. Semua pulang dengan selamat.",
+      "Budaya K3 dibangun bersama: patuhi prosedur dan saling mengingatkan.",
+      "Pulang ke keluarga dalam keadaan sehat adalah target kerja yang utama."
+    ];
+    var qi = 0;
+    setInterval(function () {
+      var el = document.querySelector("[data-fb-quote]");
+      if (!el || document.hidden) return;
+      qi = (qi + 1) % QUOTES.length;
+      el.classList.add("fb-out");
+      setTimeout(function () { el.textContent = QUOTES[qi]; el.classList.remove("fb-out"); }, 450);
+    }, 7000);
+
+
+    /* Judul halaman: gabungkan judul + subjudul menjadi satu blok desain (idempoten, aman saat render ulang) */
+    var mainEl = document.getElementById("main-content");
+    function decorateTitles() {
+      if (!mainEl) return;
+      var hs = mainEl.querySelectorAll("h1");
+      for (var i = 0; i < hs.length; i++) {
+        var h = hs[i];
+        if (h.closest(".febs-banner3d")) continue;
+        var c = h.parentElement, depth = 0;
+        while (c && c !== mainEl && depth < 3 && !c.querySelector("p")) { c = c.parentElement; depth++; }
+        if (c && c !== mainEl && c.querySelector("p") && !c.classList.contains("fb-ph")) c.classList.add("fb-ph");
+      }
+    }
+    if (mainEl && window.MutationObserver) new MutationObserver(decorateTitles).observe(mainEl, { childList: true, subtree: true });
+    decorateTitles();
+
+    /* Tilt 3D banner dashboard mengikuti pointer (delegasi, karena dashboard dirender ulang oleh aplikasi) */
+    var main = document.getElementById("main-content");
+    if (main) {
+      main.addEventListener("pointermove", function (e) {
+        var b = e.target.closest && e.target.closest(".febs-banner3d");
+        if (!b) return;
+        var r = b.getBoundingClientRect();
+        var nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5;
+        var sc = b.querySelector(".fb-scene");
+        if (sc) { sc.style.setProperty("--fb-ry", (nx * 36).toFixed(1) + "deg"); sc.style.setProperty("--fb-rx", (-ny * 28).toFixed(1) + "deg"); }
+      }, { passive: true });
+      main.addEventListener("pointerleave", function () {
+        var sc = main.querySelector(".fb-scene");
+        if (sc) { sc.style.setProperty("--fb-ry", "0deg"); sc.style.setProperty("--fb-rx", "0deg"); }
+      }, { passive: true });
+    }
+  })();
+  </script>
 </body>
+
 </html>
